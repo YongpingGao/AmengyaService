@@ -26,8 +26,8 @@ public class ThingInfoMap {
     
     private HashMap<String, String> command;
     
-    
-    
+    private Integer alarmID;
+    private Integer commandID;
     
     public ThingInfoMap(){}
 
@@ -42,6 +42,26 @@ public class ThingInfoMap {
         this(thing, created);
         this.status = status;
     }
+
+    public int getAlarmID() {
+        return alarmID;
+    }
+
+    public void setAlarmID(int alarmID) {
+        this.alarmID = alarmID;
+    }
+
+    public int getCommandID() {
+        return commandID;
+    }
+
+    public void setCommandID(int commandID) {
+        this.commandID = commandID;
+    }
+    
+    
+    
+    
     
     public String getThing() {
         return thing;

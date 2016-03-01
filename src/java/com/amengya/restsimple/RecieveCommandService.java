@@ -5,6 +5,7 @@
  */
 package com.amengya.restsimple;
 
+import com.amengya.db.DBConnection;
 import com.amengya.model.Dweet;
 import com.amengya.model.ThingInfoMap;
 import com.google.gson.Gson;
@@ -33,6 +34,7 @@ import javax.ws.rs.core.MultivaluedMap;
 public class RecieveCommandService {
 
     private Gson gson;
+    private DBConnection database;
     
     @Context
     private UriInfo context;
@@ -42,6 +44,7 @@ public class RecieveCommandService {
      */
     public RecieveCommandService() {
         gson = new GsonBuilder().setPrettyPrinting().create();
+        database = new DBConnection();
     }
 
     /**
@@ -54,7 +57,7 @@ public class RecieveCommandService {
     public String sendCommand(@PathParam("thingName") String thingName, 
             @Context UriInfo info) {
        
-        String status = "forward to the sensor-controller";
+        String status = "sent";
         MultivaluedMap queryMap = info.getQueryParameters();
         Iterator itr = queryMap.keySet().iterator();
         HashMap<String, String> dataMap = new HashMap<>();     
@@ -66,11 +69,16 @@ public class RecieveCommandService {
         ThingInfoMap thingInfoMap = new ThingInfoMap(thingName, new Timestamp(new Date().getTime()).toString(),status);
         thingInfoMap.setCommand(dataMap);
        
-        Dweet newDweet = new Dweet("succeeded", "sending", "command", thingInfoMap);
-        newDweet.setFrom("myMobileA");
+        Dweet newDweet;
         
-        //
-        
+        int c_id = database.addCommand(thingInfoMap);
+        if(c_id != -1){
+            thingInfoMap.setCommandID(c_id);
+            newDweet = new Dweet("succeeded", "sending", "command", thingInfoMap);
+            newDweet.setFrom("myMobileA");
+        } else {
+            newDweet = new Dweet("failed", "failed to send command");
+        }
         return gson.toJson(newDweet);
     }
 

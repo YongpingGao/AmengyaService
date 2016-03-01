@@ -21,10 +21,10 @@ import java.util.HashMap;
  */
 public class DBConnection {
     private final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
-    private final String DB_URL = "jdbc:mysql://localhost:3306/GaoDweets";
+    private final String DB_URL = "jdbc:mysql://50.62.166.22/gaodweets";
     
-    private final String USER = "root";
-    private final String PASS = "";
+    private final String USER = "entplanner";
+    private final String PASS = "test";
     
     private Connection connection;
     private Statement statement;
@@ -80,17 +80,63 @@ public class DBConnection {
         
         return null;
     }
-    
-    
-    
-    
-    private void excuteUpdateSQL(String sql) throws SQLException {
+     
+     
+     public int addAlarm(ThingInfoMap infoMap){
         getDBConnection();
-        statement = connection.createStatement();               
-        statement.executeUpdate(sql);
-        statement.close();
-        connection.close();
+        String thingName = infoMap.getThing();
+        String timeStamp = infoMap.getCreated();
+        String status = infoMap.getStatus();
+        String data = gson.toJson(infoMap.getContent());
+        
+        String sql = "INSERT INTO alarms (ThingName, TimeStamp, Data, Status) " +
+                 "VALUES ('" + thingName + "','"+timeStamp+"','" + data + "','"+status+"');";
+       try {
+           statement = connection.createStatement();            
+           statement.executeUpdate(sql);
+           //return the inserted item id
+           sql = "SELECT a_id FROM alarms ORDER BY a_id DESC LIMIT 1;";
+           ResultSet res = statement.executeQuery(sql);
+           res.next();
+           int r = res.getInt("a_id");
+           
+           res.close();
+           statement.close();
+           connection.close();
+           return r;
+       } catch (SQLException ex) {
+           ex.printStackTrace();
+       }
+        return -1;
     }
+     
+     
+    public int addCommand(ThingInfoMap infoMap){
+        getDBConnection();
+        String command = gson.toJson(infoMap.getCommand());
+        String sql = "INSERT INTO commands (ThingName, TimeStamp, Data, Status) " +
+                 "VALUES ('" + infoMap.getThing() + "','"+infoMap.getCreated()+"','" + command + "','"+infoMap.getStatus()+"');";
+        try {
+           statement = connection.createStatement();            
+           statement.executeUpdate(sql);
+           
+           sql = "SELECT c_id FROM commands ORDER BY c_id DESC LIMIT 1;";
+           ResultSet res = statement.executeQuery(sql);
+           res.next();
+           int r = res.getInt("c_id");
+           
+           res.close();
+           statement.close();
+           connection.close();
+           return r;
+       } catch (SQLException ex) {
+           ex.printStackTrace();
+       }
+        return -1;
+    }
+    
+    
+    
    
     
     

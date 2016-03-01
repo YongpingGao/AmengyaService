@@ -5,6 +5,7 @@
  */
 package com.amengya.restsimple;
 
+import com.amengya.db.DBConnection;
 import com.amengya.model.Dweet;
 import com.amengya.model.ThingInfoMap;
 import com.google.gson.Gson;
@@ -39,7 +40,8 @@ import javax.ws.rs.core.MultivaluedMap;
 public class ReceiveAlarmService {
 
     private Gson gson;
- 
+    private DBConnection database;
+    
     private final String DEVICE_TOKEN = "fzjb7JXd7kk:APA91bGn_n_CNx_zZUkv1Dz_gjrFJy265S54n_DDfU82J2zfdMBIs-3GNCx4oQmixiob24zw0IoKxG8DI5EloUCZlzgvg8gJdXFfpCMZAIYP_T69P66oX0Mzx23jubxIcpU6DPRHLgsm";
     private final String API_KEY = "AIzaSyD7NLBsfJ0r9vB3bbRpZR1uGXkhf4tSd48";
     @Context
@@ -50,6 +52,7 @@ public class ReceiveAlarmService {
      */
     public ReceiveAlarmService() {
         gson = new GsonBuilder().setPrettyPrinting().create();
+        database = new DBConnection();
     }
 
     /**
@@ -72,17 +75,21 @@ public class ReceiveAlarmService {
         }
         ThingInfoMap thingInfoMap = new ThingInfoMap(thingName, new Timestamp(new Date().getTime()).toString(),status);
         thingInfoMap.setContent(dataMap);
-
-        Dweet newDweet = new Dweet("succeeded", "sending", "alarm", thingInfoMap);
-        newDweet.setTo("myMobileA");
         
-        
-        // TODO: send alarm to mobile use GCM
-        String warningMsg = gson.toJson(newDweet);
-        sendToMobileByGCM(warningMsg);
-        
-        return warningMsg;
-        
+        int alarmID = database.addAlarm(thingInfoMap);
+        Dweet newDweet;
+        if(alarmID != -1){
+            thingInfoMap.setAlarmID(alarmID);
+            newDweet = new Dweet("succeeded", "sending", "alarm", thingInfoMap);
+            newDweet.setTo("myMobileA"); // it's not included in database
+            String warningMsg = gson.toJson(newDweet);
+            //send alarm to mobile use GCM
+            sendToMobileByGCM(warningMsg);
+            return warningMsg;
+        } else {
+            newDweet = new Dweet("failed", "alarm is failed to added");
+            return gson.toJson(newDweet);
+        }
 
     }
 
