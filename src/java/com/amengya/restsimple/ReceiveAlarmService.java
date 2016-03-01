@@ -9,6 +9,11 @@ import com.amengya.model.Dweet;
 import com.amengya.model.ThingInfoMap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.HashMap;
@@ -24,6 +29,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 
+
 /**
  * REST Web Service
  *
@@ -33,7 +39,9 @@ import javax.ws.rs.core.MultivaluedMap;
 public class ReceiveAlarmService {
 
     private Gson gson;
-    
+ 
+    private final String DEVICE_TOKEN = "fzjb7JXd7kk:APA91bGn_n_CNx_zZUkv1Dz_gjrFJy265S54n_DDfU82J2zfdMBIs-3GNCx4oQmixiob24zw0IoKxG8DI5EloUCZlzgvg8gJdXFfpCMZAIYP_T69P66oX0Mzx23jubxIcpU6DPRHLgsm";
+    private final String API_KEY = "AIzaSyD7NLBsfJ0r9vB3bbRpZR1uGXkhf4tSd48";
     @Context
     private UriInfo context;
 
@@ -70,10 +78,12 @@ public class ReceiveAlarmService {
         
         
         // TODO: send alarm to mobile use GCM
+        String warningMsg = gson.toJson(newDweet);
+        sendToMobileByGCM(warningMsg);
         
-        return gson.toJson(newDweet);
+        return warningMsg;
         
-        
+
     }
 
     /**
@@ -83,5 +93,40 @@ public class ReceiveAlarmService {
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     public void putJson(String content) {
+    }
+    
+    
+  
+    private void sendToMobileByGCM(String data) {
+        try{
+             JsonObject jGcmData = new JsonObject();    
+             JsonObject jData = new JsonObject();
+             jData.addProperty("message", data);
+             
+             jGcmData.addProperty("to", DEVICE_TOKEN);
+             jGcmData.add("data", jData);
+             
+
+        // Create connection to send GCM Message request.
+            URL url = new URL("https://android.googleapis.com/gcm/send");
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestProperty("Authorization", "key=" + API_KEY);
+            conn.setRequestProperty("Content-Type", "application/json");
+            conn.setRequestMethod("POST");
+            conn.setDoOutput(true);
+
+            
+            OutputStream outputStream = conn.getOutputStream();
+            outputStream.write(jGcmData.toString().getBytes());
+            conn.getInputStream();
+            
+        } catch (IOException e) {
+            System.out.println("Unable to send GCM message.");
+            System.out.println("Please ensure that API_KEY has been replaced by the server " +
+                    "API key, and that the device's registration token is correct (if specified).");
+            e.printStackTrace();
+        }
+        
+
     }
 }
