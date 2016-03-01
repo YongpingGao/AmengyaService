@@ -5,6 +5,7 @@
  */
 package com.amengya.restsimple;
 
+import com.amengya.db.DBConnection;
 import com.amengya.model.Dweet;
 import com.amengya.model.ThingInfoMap;
 import com.google.gson.Gson;
@@ -14,7 +15,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.Produces;
@@ -37,12 +37,15 @@ public class DweetResource {
     
     @Context
     private UriInfo context;
+    
+    private  DBConnection database;
 
     /**
      * Creates a new instance of DweetResource
      */
     public DweetResource() {
         gson = new GsonBuilder().setPrettyPrinting().create();
+        database = new DBConnection();
     }
 
     /**
@@ -53,7 +56,6 @@ public class DweetResource {
     @Path("dweet/for/{thingName}")  
     @Produces(MediaType.APPLICATION_JSON)
     public String createDweet(@Context UriInfo info) {
-        // if thingName is in the database:
        
         List segments = info.getPathSegments();
         MultivaluedMap queryMap = info.getQueryParameters();
@@ -71,11 +73,14 @@ public class DweetResource {
        
         ThingInfoMap thingInfoMap = new ThingInfoMap(thingName, new Timestamp(new Date().getTime()).toString());
         thingInfoMap.setContent(dataMap);
-        Dweet newDweet = new Dweet("succeeded", "dweeting", "dweet", thingInfoMap);
+        Dweet newDweet;
         
+        if(database.addNewThingInfo(thingInfoMap)){
+            newDweet = new Dweet("succeeded", "dweeting", "dweet", thingInfoMap);
+        } else {
+            newDweet = new Dweet("failed", "failed to add new dweet into database");
+        }
         
-        
-        // else return false new Dweet("failed", "can't find your thing in database");
         
         return gson.toJson(newDweet);
     }

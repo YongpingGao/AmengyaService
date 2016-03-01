@@ -30,6 +30,7 @@ public class ApplicationConfig extends Application {
      */
     private void addRestResourceClasses(Set<Class<?>> resources) {
         resources.add(com.amengya.restsimple.DweetResource.class);
+        resources.add(com.amengya.restsimple.GetLatestDweetResource.class);
         resources.add(com.amengya.restsimple.ReceiveAlarmService.class);
         resources.add(com.amengya.restsimple.RecieveCommandService.class);
     }
