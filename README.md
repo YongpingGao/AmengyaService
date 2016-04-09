@@ -1,55 +1,15 @@
 # Amengya Service
 
-## Server IP: 
-- 50.62.166.22
+## Introduction
+- Amengya Service is a server application written in Java, deployed by tomcat.
+- It is based on RESTful API (using JAX-RS) in [dweet](https://dweet.io) protocol.
+- It serves communication between user's mobile phone and the IoT sensor.
 
-## mysql:
-- UserName: entplanner
-- Password: test
-- Database Used: gaodweets
-- Tables:
-    1. dweets
-    2. alarms
-    3. commands
-    
-```sql
-show databases;
-
-CREATE DATABASE gaodweets;
-
-USE gaodweets;
-
-CREATE table dweets(
-  D_ID int NOT NULL AUTO_INCREMENT,
-  ThingName varchar(255) NOT NULL,
-  TimeStamp varchar(255),
-  Data varchar(255),
-  PRIMARY KEY (D_ID)
-);
-
-CREATE table alarms(
-  A_ID int NOT NULL AUTO_INCREMENT,
-  ThingName varchar(255) NOT NULL,
-  TimeStamp varchar(255),
-  Data varchar(255),
-  Status varchar(255),
-  PRIMARY KEY (A_ID)
-);
-
-CREATE table commands(
-  C_ID int NOT NULL AUTO_INCREMENT,
-  ThingName varchar(255) NOT NULL,
-  TimeStamp varchar(255),
-  Data varchar(255),
-  Status varchar(255),
-  PRIMARY KEY (C_ID)
-);
-``` 
 
 ## Protocol
 1. Add New Dweets:
 ```javascript
-http://50.62.166.22:8080/AmengyaService/dweet/for/amengya?Temperature=20
+http://XX.XX.XX.XX:8000/AmengyaService/dweet/for/amengya?Temperature=20
 {
   "_this": "succeeded",
   "by": "dweeting",
@@ -66,7 +26,7 @@ http://50.62.166.22:8080/AmengyaService/dweet/for/amengya?Temperature=20
 
 2. Get the latest dweet:
 ```javascript
-http://50.62.166.22:8080/AmengyaService/get/latest/dweet/for/amengya
+http://XX.XX.XX.XX:8000/AmengyaService/get/latest/dweet/for/amengya
 {
   "_this": "succeeded",
   "by": "getting",
@@ -81,9 +41,9 @@ http://50.62.166.22:8080/AmengyaService/get/latest/dweet/for/amengya
 }
 ``` 
 
-3. Alarm Recieved
+3. Alarm Recieved and Alarm send to mobile
 ```javascript
-http://50.62.166.22:8080/AmengyaService/alarm/Amengya/on?co=150
+http://XX.XX.XX.XX:8000/AmengyaService/alarm/Amengya/on?co=150
 {
   "_this": "succeeded",
   "by": "sending",
@@ -103,7 +63,7 @@ http://50.62.166.22:8080/AmengyaService/alarm/Amengya/on?co=150
 
 4. Command Recieved
 ```javascript
-http://50.62.166.22:8080/AmengyaService/command/Amengya?Fan=on
+http://XX.XX.XX.XX:8000/AmengyaService/command/Amengya?Fan=on
 {
   "_this": "succeeded",
   "by": "sending",
@@ -121,14 +81,69 @@ http://50.62.166.22:8080/AmengyaService/command/Amengya?Fan=on
 }
 ``` 
 
-## About GCM:
-1. When server get the alarm from senser:
-"http://50.62.166.22:8080/AmengyaService/alarm/Amengya/on?co=150"<br>
-The server will automatically send alarm to the mobile(Android device)
+5. Command send
+```javascript
+http://XX.XX.XX.XX:8000/AmengyaService/dweet/for/amengya?Temperature=20
+// Assume Command ID 8,9,10 are sent to the sensor side. 
+// it will return:
+{
+  "_this": "succeeded",
+  "by": "dweeting",
+  "the": "dweet",
+  "with": {
+    "thing": "amengya",
+    "created": "2016-03-02 00:40:57.622",
+    "content": {
+      "Temperature": "41"
+    }
+  },
+  "commands": [
+    {
+      "c_id": 8,
+      "thingName": "Amengya",
+      "timeStamp": "2016-03-02 00:40:39.317",
+      "data": {
+        "Fan": "off",
+        "Light": "off"
+      },
+      "status": "readytosend"
+    },
+    {
+      "c_id": 9,
+      "thingName": "Amengya",
+      "timeStamp": "2016-03-02 00:40:46.927",
+      "data": {
+        "Fan": "on"
+      },
+      "status": "readytosend"
+    },
+    {
+      "c_id": 10,
+      "thingName": "Amengya",
+      "timeStamp": "2016-03-02 00:40:54.015",
+      "data": {
+        "Lithg": "off"
+      },
+      "status": "readytosend"
+    }
+  ]
+}
+// When another "add dweet request" is sent to server, it will clean all the commands status from "readytosend" to "sent",
+// which will return (the commands are changed to empty because all the commands have been sent to senser side):
+{
+  "_this": "succeeded",
+  "by": "dweeting",
+  "the": "dweet",
+  "with": {
+    "thing": "amengya",
+    "created": "2016-03-02 00:44:46.438",
+    "content": {
+      "Temperature": "41"
+    }
+  },
+  "commands": []
+}
+```
 
-2. API KEY:
-    - AIzaSyD7NLBsfJ0r9vB3bbRpZR1uGXkhf4tSd48
-    
-3. Device Token (Nexus 4 Android):
-    - fzjb7JXd7kk:APA91bGn_n_CNx_zZUkv1Dz_gjrFJy265S54n_DDfU82J2zfdMBIs-3GNCx4oQmixiob24zw0IoKxG8DI5EloUCZlzgvg8gJdXFfpCMZAIYP_T69P66oX0Mzx23jubxIcpU6DPRHLgsm
+
 

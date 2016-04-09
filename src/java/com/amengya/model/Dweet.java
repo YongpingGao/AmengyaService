@@ -5,6 +5,8 @@
  */
 package com.amengya.model;
  
+import java.util.ArrayList;
+
  
 
 /**
@@ -19,6 +21,7 @@ public class Dweet {
     private String to;
     private String from;
     private ThingInfoMap with;
+    private ArrayList<Command> commands;
     
     
     private String because;
@@ -95,6 +98,16 @@ public class Dweet {
     public void setFrom(String from) {
         this.from = from;
     }
+
+    public ArrayList<Command> getCommands() {
+        return commands;
+    }
+
+    public void setCommands(ArrayList<Command> commands) {
+        this.commands = commands;
+    }
+
+  
     
     
     

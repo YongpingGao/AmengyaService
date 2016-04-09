@@ -5,6 +5,7 @@
  */
 package com.amengya.db;
 
+import com.amengya.model.Command;
 import com.amengya.model.ThingInfoMap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -13,6 +14,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -21,10 +23,15 @@ import java.util.HashMap;
  */
 public class DBConnection {
     private final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
-    private final String DB_URL = "jdbc:mysql://50.62.166.22/gaodweets";
+//    private final String DB_URL = "jdbc:mysql://50.62.166.22/gaodweets";
+//    
+//    private final String USER = "entplanner";
+//    private final String PASS = "test";
+//    
+    private final String DB_URL = "jdbc:mysql://localhost:3306/gaodweets";
     
-    private final String USER = "entplanner";
-    private final String PASS = "test";
+    private final String USER = "root";
+    private final String PASS = "";
     
     private Connection connection;
     private Statement statement;
@@ -133,6 +140,61 @@ public class DBConnection {
            ex.printStackTrace();
        }
         return -1;
+    }
+    
+    public ArrayList<Command> getNotSentCommand(){
+        getDBConnection();
+        String sql = "select * from commands where status = \"readytosend\";";
+        try {
+            statement = connection.createStatement();   
+            ResultSet results = statement.executeQuery(sql);
+            
+            ArrayList<Command> commands = new ArrayList<>();
+            
+            while(results.next()){
+                int id = results.getInt("C_ID");
+                String thingName = results.getString("ThingName");
+                String timeStamp = results.getString("TimeStamp");
+                String data = results.getString("Data");
+                String status = results.getString("Status");
+                
+                Command command = new Command();
+                command.setThingName(thingName);
+                command.setC_id(id);
+                command.setTimeStamp(timeStamp);
+                command.setData(gson.fromJson(data, HashMap.class));
+                command.setStatus(status);
+                
+                commands.add(command);
+            }
+            
+           results.close();
+           statement.close();
+           connection.close();
+           
+           return commands;
+        } catch (SQLException ex) {
+           ex.printStackTrace();
+       }
+        
+       return null;
+        
+    }
+    
+    public boolean updateCommandStatus(){
+        getDBConnection();
+        String sql = "UPDATE commands SET status=\"sent\" WHERE status=\"readytosend\";";
+        try {
+           statement = connection.createStatement();            
+           statement.executeUpdate(sql);
+          
+           statement.close();
+           connection.close();
+           return true;
+       } catch (SQLException ex) {
+           ex.printStackTrace();
+       }
+       return false;
     }
     
     

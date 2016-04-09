@@ -57,7 +57,7 @@ public class RecieveCommandService {
     public String sendCommand(@PathParam("thingName") String thingName, 
             @Context UriInfo info) {
        
-        String status = "sent";
+        String status = "readytosend";
         MultivaluedMap queryMap = info.getQueryParameters();
         Iterator itr = queryMap.keySet().iterator();
         HashMap<String, String> dataMap = new HashMap<>();     

@@ -6,11 +6,13 @@
 package com.amengya.restsimple;
 
 import com.amengya.db.DBConnection;
+import com.amengya.model.Command;
 import com.amengya.model.Dweet;
 import com.amengya.model.ThingInfoMap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -80,6 +82,13 @@ public class DweetResource {
         } else {
             newDweet = new Dweet("failed", "failed to add new dweet into database");
         }
+        
+        ArrayList<Command> commands = database.getNotSentCommand();
+        if(commands != null){
+            newDweet.setCommands(commands);
+            // change status "readytosend" -> "sent"
+            database.updateCommandStatus();
+        } 
         
         
         return gson.toJson(newDweet);
