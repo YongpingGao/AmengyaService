@@ -7,7 +7,7 @@
 
 
 ## Protocol
-1. Add New Dweets:
+-  Add New Dweets:
 ```javascript
 http://XX.XX.XX.XX:8000/AmengyaService/dweet/for/amengya?Temperature=20
 {
@@ -24,7 +24,7 @@ http://XX.XX.XX.XX:8000/AmengyaService/dweet/for/amengya?Temperature=20
 }
 ``` 
 
-2. Get the latest dweet:
+- Get the latest dweet:
 ```javascript
 http://XX.XX.XX.XX:8000/AmengyaService/get/latest/dweet/for/amengya
 {
@@ -41,7 +41,7 @@ http://XX.XX.XX.XX:8000/AmengyaService/get/latest/dweet/for/amengya
 }
 ``` 
 
-3. Alarm Recieved and Alarm send to mobile
+- Alarm Recieved and Alarm send to mobile
 ```javascript
 http://XX.XX.XX.XX:8000/AmengyaService/alarm/Amengya/on?co=150
 {
@@ -61,7 +61,7 @@ http://XX.XX.XX.XX:8000/AmengyaService/alarm/Amengya/on?co=150
 }
 ``` 
 
-4. Command Recieved
+- Command Recieved
 ```javascript
 http://XX.XX.XX.XX:8000/AmengyaService/command/Amengya?Fan=on
 {
@@ -81,7 +81,7 @@ http://XX.XX.XX.XX:8000/AmengyaService/command/Amengya?Fan=on
 }
 ``` 
 
-5. Command send
+- Command send
 ```javascript
 http://XX.XX.XX.XX:8000/AmengyaService/dweet/for/amengya?Temperature=20
 // Assume Command ID 8,9,10 are sent to the sensor side. 
